@@ -15,6 +15,7 @@ import java.util.HashSet;
 import java.util.Properties;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import org.apache.commons.lang.StringUtils;
 
 /**
  * Recreates and updates the database tables holding statistics information
@@ -141,12 +142,12 @@ public class StatsGenerator
                 m1 = msgPattern.matcher(line);
                 if (m1.matches()) {
                     this.countWordsInLine(this.getDate( m1.group(1) ),
-                            m1.group(2), m1.group(3));
+                            this.normalizeNick( m1.group(2) ), m1.group(3));
                 }                
                 m2 = msgPattern2.matcher(line);
                 if (m2.matches()) {
                     this.countWordsInLine(this.getDate( m2.group(1) ),
-                            m2.group(2).trim(), m2.group(3));
+                            this.normalizeNick( m2.group(2) ), m2.group(3));
                 }
             }
             input.close();
@@ -181,6 +182,18 @@ public class StatsGenerator
             this.tableManager.update(new StatsRecordEntity(date, nick, w));
         }
         this.tableManager.update(new StatsRecordEntity(date, nick, null));
+    }
+
+    private String normalizeNick(String nick)
+    {
+        String n;
+        n = nick = nick.trim();
+        while (true) {
+            nick = StringUtils.removeEnd(nick, "_");
+            if (nick.equals(n)) break;
+            n = nick;
+        }
+        return nick;
     }
 
     private String buildNickPattern(String[] nicks)
