@@ -45,27 +45,19 @@ public class SqliteLinesTableDAO implements StatsTableDAO
     public void update(Connection conn, StatsRecordDAO r) throws SQLException
     {
         if (r.getWord() != null) return;
-        
-        PreparedStatement selectLines = conn.prepareStatement(
-                "SELECT * FROM lines WHERE d = ? AND nick = ?");
 
-        selectLines.setDate(1, new java.sql.Date(r.getDate().getTime()));
-        selectLines.setString(2, r.getNick());
+        PreparedStatement updateLines = conn.prepareStatement(
+                "UPDATE lines SET d = ?, nick = ?, " +
+                "repetitions = (repetitions+1) WHERE d = ? AND nick = ?");
 
-        ResultSet rs = selectLines.executeQuery();
-        if (rs.next()) {
-            PreparedStatement updateLines = conn.prepareStatement(
-                    "UPDATE lines SET d = ?, nick = ?, " +
-                    "repetitions = (repetitions+1) WHERE d = ? AND nick = ?");
+        updateLines.setDate(1, new java.sql.Date(r.getDate().getTime()));
+        updateLines.setString(2, r.getNick());
+        updateLines.setDate(3, new java.sql.Date(r.getDate().getTime()));
+        updateLines.setString(4, r.getNick());
 
-            updateLines.setDate(1, new java.sql.Date(r.getDate().getTime()));
-            updateLines.setString(2, r.getNick());
-            updateLines.setDate(3, new java.sql.Date(r.getDate().getTime()));
-            updateLines.setString(4, r.getNick());
-
-            updateLines.executeUpdate();
-            updateLines.close();
-        } else {
+        int ret = updateLines.executeUpdate();
+        updateLines.close();
+        if (ret == 0) {
             PreparedStatement insertLines = conn.prepareStatement(
                     "INSERT INTO lines values(?, ?, 1)");
 
@@ -75,8 +67,5 @@ public class SqliteLinesTableDAO implements StatsTableDAO
             insertLines.executeUpdate();
             insertLines.close();
         }
-
-        rs.close();
-        selectLines.close();
     }
 }

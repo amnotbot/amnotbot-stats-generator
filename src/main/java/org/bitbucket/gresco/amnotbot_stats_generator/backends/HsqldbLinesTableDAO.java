@@ -3,7 +3,6 @@ package org.bitbucket.gresco.amnotbot_stats_generator.backends;
 import org.bitbucket.gresco.amnotbot_stats_generator.*;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 
@@ -20,8 +19,6 @@ public class HsqldbLinesTableDAO implements StatsTableDAO
         Statement statement;
         statement = conn.createStatement();
 
-        statement.execute("SET WRITE_DELAY 10 MILLIS");
-        
         statement.executeUpdate("CREATE TABLE lines " +
                 "(d DATE, nick VARCHAR, repetitions REAL)");
 
@@ -43,31 +40,24 @@ public class HsqldbLinesTableDAO implements StatsTableDAO
     }
 
     @Override
-    public void update(Connection conn, StatsRecordDAO r)
+    public synchronized void update(Connection conn, StatsRecordDAO r)
             throws SQLException
     {
         if (r.getWord() != null) return;
 
-        PreparedStatement selectLines = conn.prepareStatement(
-                "SELECT * FROM lines WHERE d = ? AND nick = ?");
+        PreparedStatement updateLines = conn.prepareStatement(
+                "UPDATE lines SET d = ?, nick = ?, " +
+                "repetitions = (repetitions+1) WHERE d = ? AND nick = ?");
 
-        selectLines.setDate(1, new java.sql.Date(r.getDate().getTime()));
-        selectLines.setString(2, r.getNick());
+        updateLines.setDate(1, new java.sql.Date(r.getDate().getTime()));
+        updateLines.setString(2, r.getNick());
+        updateLines.setDate(3, new java.sql.Date(r.getDate().getTime()));
+        updateLines.setString(4, r.getNick());
 
-        ResultSet rs = selectLines.executeQuery();
-        if (rs.next()) {
-            PreparedStatement updateLines = conn.prepareStatement(
-                    "UPDATE lines SET d = ?, nick = ?, " +
-                    "repetitions = (repetitions+1) WHERE d = ? AND nick = ?");
+        int i = updateLines.executeUpdate();
+        updateLines.close();
 
-            updateLines.setDate(1, new java.sql.Date(r.getDate().getTime()));
-            updateLines.setString(2, r.getNick());
-            updateLines.setDate(3, new java.sql.Date(r.getDate().getTime()));
-            updateLines.setString(4, r.getNick());
-
-            updateLines.executeUpdate();
-            updateLines.close();
-        } else {
+        if (i == 0) {
             PreparedStatement insertLines = conn.prepareStatement(
                     "INSERT INTO lines values(?, ?, 1)");
 
@@ -77,8 +67,5 @@ public class HsqldbLinesTableDAO implements StatsTableDAO
             insertLines.executeUpdate();
             insertLines.close();
         }
-
-        rs.close();
-        selectLines.close();
     }
 }
