@@ -82,7 +82,7 @@ public class HsqldbWordsTableDAO implements StatsTableDAO
             insertWords.close();
         }
 
-        selectWords.close();
         rs.close();
+        selectWords.close();        
     }
 }

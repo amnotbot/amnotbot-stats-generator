@@ -81,7 +81,7 @@ public class SqliteWordsTableDAO implements StatsTableDAO
             insertWords.close();
         }
 
-        selectWords.close();
         rs.close();
+        selectWords.close();        
     }
 }
