@@ -104,9 +104,9 @@ public class StatsGenerator
         urlPattern = Pattern.compile("(\\[.*\\]\\s\\w*>\\s)" +
                 "((http://([a-zA-Z]*.)?[a-zA-Z0-9]+(.[a-z]{2,4})+\\S*).*)",
                 Pattern.CASE_INSENSITIVE);
-        msgPattern = Pattern.compile("\\[(.*)\\]\\s(\\w*)>\\s(.*)");
+        msgPattern = Pattern.compile("\\[([^>]*)\\]\\s(\\w*)>\\s(.*)");
         msgPattern2 = Pattern.compile(
-                "\\[(.*)\\]\\s\\[.*\\]\\s<.?(\\w*)>\\s(.*)");
+                "\\[([^>]*)\\]\\s\\[[^>]*\\]\\s<.?(\\w*)>\\s(.*)");
         commandPattern = Pattern.compile(
                 "(\\[.*\\]\\s.*>\\s)\\" + 
                 this.p.getProperty("cmdtrigger") + "\\w\\s?.*");
@@ -213,7 +213,7 @@ public class StatsGenerator
 
     private Date getDate(String date) throws ParseException
     {
-        Pattern formatOne, formatTwo;
+        Pattern formatOne, formatTwo, formatThree;
 
         // Tue Aug 22 2006
         formatOne = Pattern.compile("[a-zA-Z]{3}\\s([a-zA-Z]{3}\\s[0-9]{2}" +
@@ -221,6 +221,9 @@ public class StatsGenerator
         // 2008-09-25 01:06:40,653
         formatTwo = Pattern.compile("([0-9]{4}\\-[0-9]{2}\\-[0-9]{2})" +
                 "\\s[0-9]{2}\\:[0-9]{2}\\:[0-9]{2}\\,[0-9]{3}");
+        // 03/21/2008 11:40:03
+        formatThree = Pattern.compile("([0-9]{2}\\/[0-9]{2}\\/[0-9]{4})" +
+                "\\s[0-9]{2}\\:[0-9]{2}\\:[0-9]{2}");
 
         Matcher m;
         Date rDate = null;
@@ -236,12 +239,20 @@ public class StatsGenerator
 
         m = formatTwo.matcher(date);
         if (m.matches()) {
-            String[] d;
-            d = m.group(1).split("-");
             SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-            rDate = sdf.parse(d[0] + "-" + d[1] + "-" + d[2]);
+            rDate = sdf.parse( m.group(1) );
             return rDate;
         }
+
+        m = formatThree.matcher(date);
+        if (m.matches()) {
+            String[] d;
+            d = m.group(1).split("/");
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+            rDate = sdf.parse(d[2] + "-" + d[0] + "-" + d[1]);
+            return rDate;
+        }
+
         return rDate;
     }
 }

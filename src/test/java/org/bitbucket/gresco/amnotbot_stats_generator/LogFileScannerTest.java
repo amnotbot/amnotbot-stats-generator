@@ -26,15 +26,15 @@ import static org.junit.Assert.*;
 public class LogFileScannerTest
 {
     final static String baseDir = "build/test/classes/";
-    final static String dbFilename1 = "irclogs/oftc/#amnotbot.db";
-    final static String dbFilename2 = "irclogs/freenode/#amnotbot.db";
 
     private static String backend;
+    private static String dbFilename;
     private static DbFileFilter filter;
 
-    public LogFileScannerTest(String _backend)
+    public LogFileScannerTest(String _backend, String _dbFilename)
     {
         backend = _backend;
+        dbFilename = _dbFilename;
     }
 
     @BeforeClass
@@ -71,16 +71,22 @@ public class LogFileScannerTest
     @Parameters
     public static Collection testParameters()
     {
-        Object[][] data = 
-                new Object[][] { {"sqlite"}, {"hsqldb"} };
+        Object[][] data = new Object[][] {
+            {"sqlite", "irclogs/oftc/#amnotbot.db"},
+            {"sqlite", "irclogs/freenode/#amnotbot.db"},
+            {"sqlite", "irclogs/ircnet/#amnotbot.db"},
+            {"hsqldb", "irclogs/oftc/#amnotbot.db"},
+            {"hsqldb", "irclogs/freenode/#amnotbot.db"},
+            {"hsqldb", "irclogs/ircnet/#amnotbot.db"}
+        };
 
         return Arrays.asList(data);
     }
 
     @Test
-    public void testScanLogFiles() throws SQLException
+    public void testScanLogs()
     {
-        System.out.println("scanLogFiles");
+        System.out.println("scanLogFiles: " + backend + ":" + dbFilename);
         Properties p = new Properties();
 
         p.setProperty("backend", backend);
@@ -89,33 +95,24 @@ public class LogFileScannerTest
         p.setProperty("botnick", "amnotbot");
         p.setProperty("minwordlen", String.valueOf(3));
         p.setProperty("cmdtrigger", ".");
-        
+
         LogFileScanner instance = new LogFileScanner(p);
         instance.scanLogFiles();
         instance = null;
-
-        File f;
-        f = new File(baseDir + dbFilename1);
-        assertTrue( f.exists() );
-        f = null;
-
-        f = new File(baseDir + dbFilename2);
-        assertTrue( f.exists() );
-        f = null;
     }
 
     @Test
-    public void testQueryWordsFormatOne()
+    public void testQueryWords()
             throws SQLException, ClassNotFoundException
     {
-        System.out.println("testQueryWordsFormatOne");
+        System.out.println("testQueryWords");
         String query;
         query = "SELECT word, SUM(repetitions) AS rep FROM words " +
                  "GROUP BY word ORDER BY rep DESC LIMIT 5";
 
         Connection conn = null;
         conn = StatsFactory.instance().getConnection(backend,
-                baseDir + dbFilename1);
+                baseDir + dbFilename);
 
         ResultSet rs = null;
         Statement smt = null;
@@ -132,50 +129,21 @@ public class LogFileScannerTest
         rs.close();
         smt.close();
         StatsFactory.instance().closeConnection(backend, conn);
+        conn = null;
     }
 
     @Test
-    public void testQueryWordsFormatTwo()
+    public void testQueryLines()
             throws SQLException, ClassNotFoundException
     {
-        System.out.println("testQueryWordsFormatTwo");
-        String query;
-        query = "SELECT word, SUM(repetitions) AS rep FROM words " +
-                 "GROUP BY word ORDER BY rep DESC LIMIT 5";
-
-        Connection conn = null;
-        conn = StatsFactory.instance().getConnection(backend,
-                baseDir + dbFilename2);
-        
-        ResultSet rs = null;
-        Statement smt = null;
-        smt = conn.createStatement();
-        try {
-            rs = smt.executeQuery(query);
-            rs.next();
-            assertEquals("developers", rs.getString(1));
-            assertEquals(8, rs.getInt(2));
-        } catch (SQLException e) {
-            e.printStackTrace();
-            System.err.println(e);
-        }
-        smt.close();
-        rs.close();
-        StatsFactory.instance().closeConnection(backend, conn);
-    }
-
-    @Test
-    public void testQueryLinesFormatOne()
-            throws SQLException, ClassNotFoundException
-    {
-        System.out.println("testQueryLinesFormatOne");
+        System.out.println("testQueryLines");
         String query;
         query = "SELECT nick, SUM(repetitions) AS rep FROM lines " +
                  "GROUP BY nick ORDER BY rep DESC LIMIT 5";
 
         Connection conn = null;
         conn = StatsFactory.instance().getConnection(backend,
-                baseDir + dbFilename1);
+                baseDir + dbFilename);
 
         ResultSet rs = null;
         Statement smt = null;
@@ -184,7 +152,7 @@ public class LogFileScannerTest
             rs = smt.executeQuery(query);
             rs.next();
             assertEquals("gresco", rs.getString(1));
-            assertEquals(4, rs.getInt(2));
+            assertEquals(5, rs.getInt(2));
             rs.next();
             assertEquals("knix", rs.getString(1));
             assertEquals(3, rs.getInt(2));
@@ -193,43 +161,9 @@ public class LogFileScannerTest
             e.printStackTrace();
             System.err.println(e);
         }
-        smt.close();
         rs.close();
-        StatsFactory.instance().closeConnection(backend, conn);
-    }
-
-    @Test
-    public void testQueryLinesFormatTwo()
-            throws SQLException, ClassNotFoundException
-    {
-        System.out.println("testQueryLinesFormatTwo");
-        String query;
-        query = "SELECT nick, SUM(repetitions) AS rep FROM lines " +
-                 "GROUP BY nick ORDER BY rep DESC LIMIT 5";
-
-        Connection conn = null;
-        conn = StatsFactory.instance().getConnection(backend,
-                baseDir + dbFilename2);
-
-        ResultSet rs = null;
-        Statement smt = null;
-        smt = conn.createStatement();
-        smt.setQueryTimeout(30);
-        try {
-            rs = smt.executeQuery(query);
-            rs.next();
-            assertEquals("gresco", rs.getString(1));
-            assertEquals(4, rs.getInt(2));
-            rs.next();
-            assertEquals("knix", rs.getString(1));
-            assertEquals(3, rs.getInt(2));
-            assertFalse(rs.next());
-        } catch (SQLException e) {
-            e.printStackTrace();
-            System.err.println(e);
-        }
         smt.close();
-        rs.close();
         StatsFactory.instance().closeConnection(backend, conn);
+        conn = null;
     }
 }
