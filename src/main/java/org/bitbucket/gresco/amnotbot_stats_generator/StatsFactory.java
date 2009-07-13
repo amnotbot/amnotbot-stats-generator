@@ -1,9 +1,9 @@
 package org.bitbucket.gresco.amnotbot_stats_generator;
 
-import org.bitbucket.gresco.amnotbot_stats_generator.*;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.LinkedList;
 
 /**
@@ -54,6 +54,19 @@ public class StatsFactory
         return driver;
     }
 
+    private void setDefaults(String backend, Connection conn) throws SQLException
+    {
+        if (backend.equals("hsqldb")) {
+            Statement smt = conn.createStatement();
+            smt.execute("SET LOGSIZE 10");
+            smt.close();
+        } else if (backend.equals("sqlite")) {
+            Statement smt = conn.createStatement();
+            smt.execute("PRAGMA synchronous=OFF");
+            smt.close();
+        }
+    }
+
     /**
      * Gets a database connection for the specified backend and database file
      * name.
@@ -70,6 +83,7 @@ public class StatsFactory
 
         driver = this.getDriver(backend);
         connection = DriverManager.getConnection("jdbc:" + driver + ":" + db);
+        this.setDefaults(backend, connection);
 
         return connection;
     }
@@ -85,7 +99,9 @@ public class StatsFactory
             throws SQLException
     {
         if (backend.equals("hsqldb")) {
-            conn.createStatement().execute("SHUTDOWN");
+            Statement smt = conn.createStatement();
+            smt.execute("SHUTDOWN");
+            smt.close();
         }
         conn.close();
     }
