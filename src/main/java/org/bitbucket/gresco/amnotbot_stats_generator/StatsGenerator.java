@@ -143,6 +143,7 @@ public class StatsGenerator
                 if (m1.matches()) {
                     this.countWordsInLine(this.getDate( m1.group(1) ),
                             this.normalizeNick( m1.group(2) ), m1.group(3));
+                    continue;
                 }                
                 m2 = msgPattern2.matcher(line);
                 if (m2.matches()) {
@@ -186,6 +187,8 @@ public class StatsGenerator
 
     private String normalizeNick(String nick)
     {
+        if (!nick.endsWith("_")) return nick;
+
         String n;
         n = nick = nick.trim();
         while (true) {
