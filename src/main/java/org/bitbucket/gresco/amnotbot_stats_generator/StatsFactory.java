@@ -28,9 +28,6 @@ public class StatsFactory
         return _instance;
     }
 
-    /**
-     *
-     */
     protected StatsFactory()
     {
         try {
@@ -58,7 +55,7 @@ public class StatsFactory
     {
         if (backend.equals("hsqldb")) {
             Statement smt = conn.createStatement();
-            smt.execute("SET LOGSIZE 10");
+            smt.execute("SET LOGSIZE 50");
             smt.close();
         } else if (backend.equals("sqlite")) {
             Statement smt = conn.createStatement();
@@ -100,7 +97,7 @@ public class StatsFactory
     {
         if (backend.equals("hsqldb")) {
             Statement smt = conn.createStatement();
-            smt.execute("SHUTDOWN");
+            smt.execute("SHUTDOWN COMPACT");
             smt.close();
         }
         conn.close();
