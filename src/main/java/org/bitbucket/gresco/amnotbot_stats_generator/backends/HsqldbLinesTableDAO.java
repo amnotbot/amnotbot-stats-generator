@@ -40,7 +40,7 @@ public class HsqldbLinesTableDAO implements StatsTableDAO
     }
 
     @Override
-    public synchronized void update(Connection conn, StatsRecordDAO r)
+    public void update(Connection conn, StatsRecordDAO r)
             throws SQLException
     {
         if (r.getWord() != null) return;
