@@ -1,5 +1,7 @@
-package org.bitbucket.gresco.amnotbot_stats_generator;
+package com.github.amnotbot.stats;
 
+import com.github.amnotbot.stats.StatsFactory;
+import com.github.amnotbot.stats.LogFileScanner;
 import java.io.File;
 import java.sql.Connection;
 import java.sql.ResultSet;

@@ -1,4 +1,4 @@
-package org.bitbucket.gresco.amnotbot_stats_generator;
+package com.github.amnotbot.stats;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -120,8 +120,8 @@ public class StatsFactory
         try {
             for (String t  : tableNames) {
                 tableClass = Class.forName(
-                        "org.bitbucket.gresco.amnotbot_stats_generator." +
-                        "backends." + className + t + "TableDAO");
+                        "com.github.amnotbot.stats.backends." + 
+                        className + t + "TableDAO");
                 
                 result.add((StatsTableDAO) tableClass.newInstance() );
             }

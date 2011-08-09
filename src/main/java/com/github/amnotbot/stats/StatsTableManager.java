@@ -1,4 +1,4 @@
-package org.bitbucket.gresco.amnotbot_stats_generator;
+package com.github.amnotbot.stats;
 
 import java.sql.Connection;
 import java.sql.SQLException;
