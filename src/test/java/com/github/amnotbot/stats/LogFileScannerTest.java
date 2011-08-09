@@ -27,7 +27,7 @@ import static org.junit.Assert.*;
 @RunWith(value = Parameterized.class)
 public class LogFileScannerTest
 {
-    final static String baseDir = "build/test/classes/";
+    final static String baseDir = "target/test-classes/";
 
     private static String backend;
     private static String dbFilename;
