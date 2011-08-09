@@ -1,6 +1,6 @@
-package org.bitbucket.gresco.amnotbot_stats_generator.backends;
+package com.github.amnotbot.stats.backends;
 
-import org.bitbucket.gresco.amnotbot_stats_generator.*;
+import com.github.amnotbot.stats.*;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
