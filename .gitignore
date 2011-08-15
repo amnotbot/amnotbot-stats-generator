@@ -2,7 +2,7 @@ target
 build
 dist
 debug.log
+nbproject
 .project
 .classpath
 .settings
-/nbproject/

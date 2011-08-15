@@ -21,7 +21,7 @@ public class HsqldbWordsTableDAO implements StatsTableDAO
         statement = conn.createStatement();
 
         statement.executeUpdate("CREATE CACHED TABLE words " +
-                "(d DATE, nick VARCHAR, word VARCHAR, repetitions REAL)");
+                "(d DATE, nick VARCHAR(50), word VARCHAR(50), repetitions REAL)");
         statement.executeUpdate("CREATE UNIQUE INDEX wdnw ON words" +
                 " (d, nick, word)");
         statement.executeUpdate("CREATE INDEX wn ON words (nick)");
