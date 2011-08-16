@@ -117,6 +117,9 @@ public class StatsGenerator
         }
 
         try {
+            StatsProgress progressBar = 
+                    new StatsProgress(logFilename, 
+                            new File(logFilename).length());
             FileInputStream aFile = new FileInputStream(logFilename);
 
             BufferedReader input = null;
@@ -125,7 +128,10 @@ public class StatsGenerator
 
             String line = null;
             Matcher m1, m2;
+            long progress = 0;
             while ((line = input.readLine()) != null) {
+                progress += line.length();
+                progressBar.showProgress(progress);
                 // Skip unwanted lines.
                 if (nickPattern != null) {
                     if (!nickPattern.matcher(line).matches()) {
