@@ -30,8 +30,16 @@ public class StatsProgress
         long completed = progress * 100 / this.total;
         
         int p = (int) (completed % this.wheel.length);
-        System.out.print("[" + this.filename + "]" + this.wheel[p] + " %" 
+        System.out.print("[" + this.filename + "] " + this.wheel[p] + " %" 
                 + completed + "\r");
     }
     
+    /**
+     * Sets the progress to %100.
+     */
+    public void finish()
+    {
+        System.out.print("[" + this.filename + "] " + this.wheel[0] + " %100\r");
+        System.out.println();
+    }
 }

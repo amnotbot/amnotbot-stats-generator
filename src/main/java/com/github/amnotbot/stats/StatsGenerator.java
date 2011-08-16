@@ -158,6 +158,7 @@ public class StatsGenerator
                 }
             }
             input.close();
+            progressBar.finish();
         } catch (IOException e) {
             e.printStackTrace();
         }
