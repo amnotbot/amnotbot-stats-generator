@@ -13,7 +13,7 @@ public class LogFileFilter implements FilenameFilter
     @Override
     public boolean accept(File dir, String name)
     {
-        return (name.startsWith("#") && !name.contains(".db"));
+        return ((name.startsWith("#") || name.contains("@")) && !name.contains(".db"));
     }
 
 }
